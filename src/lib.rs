@@ -1,4 +1,5 @@
 use amd::{order, Control, Status};
+use numpy::PyReadwriteArrayDyn;
 use pyo3::prelude::*;
 use rlu::{factor, solve, Options};
 
@@ -10,10 +11,9 @@ fn factor_solve(
     rowind: Vec<usize>,
     colptr: Vec<usize>,
     nz: Vec<f64>,
-    b: Vec<f64>,
-    // rhs: Vec<Vec<f64>>,
+    mut b: PyReadwriteArrayDyn<f64>,
     trans: bool,
-) -> PyResult<Vec<f64>> {
+) -> PyResult<()> {
     let control = Control::default();
 
     let (p, _p_inv, info) = order::<usize>(n, &colptr, &rowind, &control).unwrap();
@@ -22,12 +22,11 @@ fn factor_solve(
     let options = Options::default();
     let lu = factor(n, &rowind, &colptr, &nz, Some(&p), &options).unwrap();
 
-    let mut x = b.clone();
-    let mut rhs: Vec<&mut [f64]> = vec![&mut x];
+    let x = b.as_slice_mut().unwrap();
 
-    solve(&lu, &mut rhs, trans).unwrap();
+    solve(&lu, x, trans).unwrap();
 
-    Ok(x)
+    Ok(())
 }
 
 /// Provides sparse LU factorization with partial pivoting as described in

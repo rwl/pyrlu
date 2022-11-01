@@ -1,5 +1,9 @@
 import pyrlu
 
+from numpy import asfortranarray, hstack, c_
+from scipy.sparse import csc_matrix
+
+
 # A = [
 #   [2.10                               0.14 0.09     ]
 #   [     1.10           0.06                     0.03]
@@ -20,11 +24,15 @@ a = [
   0.32, 1.9, 0.43, 0.14, 0.19, 1.1, 0.22, 0.09, 0.32, 0.22, 2.4, 0.03, 0.04, 0.44, 0.43, 3.2,
 ]
 
+A = csc_matrix((a, arow, acolst), shape=(n, n))
+
 b = [0.403, 0.28, 0.55, 1.504, 0.812, 1.32, 1.888, 1.168, 2.473, 3.695]
 
+x = asfortranarray(c_[b, b])
 
-print(pyrlu.__doc__)
+print(pyrlu.factor_solve.__doc__)
+# print(x)
 
-x = pyrlu.factor_solve(n, arow, acolst, a, b, True)
+pyrlu.factor_solve(n, A.indices, A.indptr, A.data, x, False)
 
-print('x = ' + ' '.join(['%.1f' % v for v in x]))
+print(x)
