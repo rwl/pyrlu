@@ -31,7 +31,8 @@ b = [0.403, 0.28, 0.55, 1.504, 0.812, 1.32, 1.888, 1.168, 2.473, 3.695]
 x = asfortranarray(c_[b, b])
 
 print(pyrlu.factor_solve.__doc__)
-# print(A.indices.dtype)
+# from inspect import signature
+# print(signature(pyrlu.factor_solve))
 
 pyrlu.factor_solve(n, A.indices, A.indptr, A.data, x, False)
 

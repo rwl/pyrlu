@@ -7,6 +7,7 @@ use rlu::{factor, solve, Options, Scalar};
 /// Performs LU factorization of a sparse matrix in compressed column format
 /// and solves for one or more right-hand-side vectors.
 #[pyfunction]
+#[pyo3(text_signature = "(n, rowind, colptr, nz, b, trans, /)")]
 fn factor_solve(
     n: i32,
     rowind: PyReadonlyArray1<i32>,
@@ -21,6 +22,7 @@ fn factor_solve(
 /// Performs LU factorization of a sparse complex matrix in compressed column format
 /// and solves for one or more complex right-hand-side vectors.
 #[pyfunction]
+#[pyo3(text_signature = "(n, rowind, colptr, nz, b, trans, /)")]
 fn z_factor_solve(
     n: i32,
     rowind: PyReadonlyArray1<i32>,
