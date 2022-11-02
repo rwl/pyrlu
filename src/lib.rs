@@ -1,8 +1,8 @@
 use amd::{order, Control, Status};
-use numpy::{PyReadonlyArray1, PyReadwriteArrayDyn};
+use numpy::{Complex64, Element, PyReadonlyArray1, PyReadwriteArrayDyn};
 use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
-use rlu::{factor, solve, Options};
+use rlu::{factor, solve, Options, Scalar};
 
 /// Performs LU factorization of a sparse matrix in compressed column format
 /// and solves for one or more right-hand-side vectors.
@@ -12,7 +12,32 @@ fn factor_solve(
     rowind: PyReadonlyArray1<i32>,
     colptr: PyReadonlyArray1<i32>,
     nz: PyReadonlyArray1<f64>,
-    mut b: PyReadwriteArrayDyn<f64>,
+    b: PyReadwriteArrayDyn<f64>,
+    trans: bool,
+) -> PyResult<()> {
+    order_factor_solve(n, rowind, colptr, nz, b, trans)
+}
+
+/// Performs LU factorization of a sparse complex matrix in compressed column format
+/// and solves for one or more complex right-hand-side vectors.
+#[pyfunction]
+fn z_factor_solve(
+    n: i32,
+    rowind: PyReadonlyArray1<i32>,
+    colptr: PyReadonlyArray1<i32>,
+    nz: PyReadonlyArray1<Complex64>,
+    b: PyReadwriteArrayDyn<Complex64>,
+    trans: bool,
+) -> PyResult<()> {
+    order_factor_solve(n, rowind, colptr, nz, b, trans)
+}
+
+fn order_factor_solve<S: Element + Scalar>(
+    n: i32,
+    rowind: PyReadonlyArray1<i32>,
+    colptr: PyReadonlyArray1<i32>,
+    nz: PyReadonlyArray1<S>,
+    mut b: PyReadwriteArrayDyn<S>,
     trans: bool,
 ) -> PyResult<()> {
     let a_i = rowind
@@ -51,5 +76,6 @@ fn factor_solve(
 #[pymodule]
 fn pyrlu(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(factor_solve, m)?)?;
+    m.add_function(wrap_pyfunction!(z_factor_solve, m)?)?;
     Ok(())
 }

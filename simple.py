@@ -1,6 +1,6 @@
 import pyrlu
 
-from numpy import asfortranarray, hstack, c_
+from numpy import asfortranarray, c_
 from scipy.sparse import csc_matrix
 
 
@@ -34,5 +34,14 @@ print(pyrlu.factor_solve.__doc__)
 # print(A.indices.dtype)
 
 pyrlu.factor_solve(n, A.indices, A.indptr, A.data, x, False)
+
+print(x)
+
+# Complex #
+
+A = csc_matrix((a, arow, acolst), shape=(n, n), dtype=complex)
+x = asfortranarray(c_[b, b], dtype=complex)
+
+pyrlu.z_factor_solve(n, A.indices, A.indptr, A.data, x, False)
 
 print(x)
