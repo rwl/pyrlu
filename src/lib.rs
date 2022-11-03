@@ -2,12 +2,12 @@ use amd::{order, Control, Status};
 use numpy::{Complex64, Element, PyReadonlyArray1, PyReadwriteArrayDyn};
 use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
-use rlu::{factor, solve, Options, Scalar};
+use rlu::{factor, par_solve, solve, Options, Scalar};
 
 /// Performs LU factorization of a sparse matrix in compressed column format
 /// and solves for one or more right-hand-side vectors.
-#[pyfunction]
-#[pyo3(text_signature = "(n, rowind, colptr, nz, b, trans, /)")]
+#[pyfunction(n, rowind, colptr, nz, b, trans = false, par = false)]
+#[pyo3(text_signature = "(n, rowind, colptr, nz, b, /, trans=False, par=False)")]
 fn factor_solve(
     n: i32,
     rowind: PyReadonlyArray1<i32>,
@@ -15,14 +15,15 @@ fn factor_solve(
     nz: PyReadonlyArray1<f64>,
     b: PyReadwriteArrayDyn<f64>,
     trans: bool,
+    par: bool,
 ) -> PyResult<()> {
-    order_factor_solve(n, rowind, colptr, nz, b, trans)
+    order_factor_solve(n, rowind, colptr, nz, b, trans, par)
 }
 
 /// Performs LU factorization of a sparse complex matrix in compressed column format
 /// and solves for one or more complex right-hand-side vectors.
-#[pyfunction]
-#[pyo3(text_signature = "(n, rowind, colptr, nz, b, trans, /)")]
+#[pyfunction(n, rowind, colptr, nz, b, trans = false, par = false)]
+#[pyo3(text_signature = "(n, rowind, colptr, nz, b, /, trans=False, par=False)")]
 fn z_factor_solve(
     n: i32,
     rowind: PyReadonlyArray1<i32>,
@@ -30,17 +31,19 @@ fn z_factor_solve(
     nz: PyReadonlyArray1<Complex64>,
     b: PyReadwriteArrayDyn<Complex64>,
     trans: bool,
+    par: bool,
 ) -> PyResult<()> {
-    order_factor_solve(n, rowind, colptr, nz, b, trans)
+    order_factor_solve(n, rowind, colptr, nz, b, trans, par)
 }
 
-fn order_factor_solve<S: Element + Scalar>(
+fn order_factor_solve<S: Element + Scalar + Send + Sync>(
     n: i32,
     rowind: PyReadonlyArray1<i32>,
     colptr: PyReadonlyArray1<i32>,
     nz: PyReadonlyArray1<S>,
     mut b: PyReadwriteArrayDyn<S>,
     trans: bool,
+    par: bool,
 ) -> PyResult<()> {
     let a_i = rowind
         .as_slice()
@@ -67,7 +70,13 @@ fn order_factor_solve<S: Element + Scalar>(
         .as_slice_mut()
         .map_err(|err| PyValueError::new_err(format!("b: {}", err)))?;
 
-    solve(&lu, x, trans).map_err(|err| PyValueError::new_err(format!("solve error: {}", err)))?;
+    if par {
+        par_solve(&lu, x, trans)
+            .map_err(|err| PyValueError::new_err(format!("par_solve error: {}", err)))?;
+    } else {
+        solve(&lu, x, trans)
+            .map_err(|err| PyValueError::new_err(format!("solve error: {}", err)))?;
+    }
 
     Ok(())
 }
