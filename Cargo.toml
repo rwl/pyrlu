@@ -13,4 +13,4 @@ pyo3 = { version = "0.17.1", features = ["extension-module"] }
 numpy = "0.17"
 
 amd = "0.2"
-rlu = { version = "0.4.0", features = ["rayon"] }
+rlu = { version = "0.4.1", features = ["rayon"] }
