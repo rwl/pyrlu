@@ -1,16 +1,15 @@
 [package]
 name = "pyrlu"
-version = "0.1.2"
+version = "0.2.0"
 edition = "2021"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [lib]
 name = "pyrlu"
 crate-type = ["cdylib"]
 
 [dependencies]
-pyo3 = { version = "0.17.1", features = ["extension-module"] }
+pyo3 = { version = "0.17", features = ["extension-module"] }
 numpy = "0.17"
 
-amd = "0.2"
-rlu = { version = "=0.4.2", features = ["rayon"] }
+amd = "0.2.2"
+rlu = { version = "=0.7.0", features = ["rayon"] }
