@@ -26,7 +26,7 @@ jobs:
           command: build
           args: --release -o dist --find-interpreter --target ${{ matrix.arch }}
       - name: Upload wheels
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: wheels-${{ matrix.arch }}
           path: dist
@@ -40,7 +40,7 @@ jobs:
           command: build
           args: --release -o dist --find-interpreter
       - name: Upload wheels
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: wheels
           path: dist
@@ -54,7 +54,7 @@ jobs:
           command: build
           args: --release -o dist --universal2 --find-interpreter
       - name: Upload wheels
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: wheels
           path: dist
@@ -65,7 +65,7 @@ jobs:
     if: "startsWith(github.ref, 'refs/tags/')"
     needs: [ macos, windows, linux ]
     steps:
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v4
         with:
           name: wheels
       - name: Publish to PyPI
